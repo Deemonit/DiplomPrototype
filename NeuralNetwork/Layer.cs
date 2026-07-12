@@ -72,15 +72,15 @@ namespace NeuralNetwork
                 weights_root = weights_doc.CreateElement("Weights");
                 weights_doc.AppendChild(weights_root);
             }
-
-            double limit = Math.Sqrt(2.0 / prevNeurons);
+            //Стандартное отклонение
+            double standardDeviation = Math.Sqrt(2.0 / prevNeurons);
             int weightsElementCount = weights_root.ChildNodes.Count;
             if (weights_root.ChildNodes.Count < curNeurons * prevNeurons)
             {
                 for (int i = 0; i < (curNeurons * prevNeurons) - weightsElementCount; i++)
                 {
                     XmlElement weight = weights_doc.CreateElement("weight");
-                    double weightValue = GeneratedWeightValue(random) * limit;
+                    double weightValue = GeneratedWeightValue() * limit;
                     weight.InnerText = weightValue.ToString();//(random.Next(-99999, 99999) * 0.0001).ToString();
                     weights_root.AppendChild(weight);
                 }

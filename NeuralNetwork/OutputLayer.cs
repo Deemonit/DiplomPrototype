@@ -10,7 +10,7 @@ namespace NeuralNetwork
         {
             for (int i = 0; i < Neurons.Length; i++)
             {
-                Neurons[i].Output = Neurons[i].Output;
+                Neurons[i].CalculateOutput();
                 net.RESULTS[i] = Neurons[i].Output;
             }
             net.RESULTS = Softmax(net.RESULTS);
