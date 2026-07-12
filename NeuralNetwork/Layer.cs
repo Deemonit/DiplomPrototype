@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Xml;
 using NeuralNetworkConstructor;
 
@@ -24,7 +19,7 @@ namespace NeuralNetwork
 
         protected int curNeurons;
         protected int prevNeurons;
-        protected Layer(int curNeurons, int prevNeurons, Network.NeuronType neuronType, string type)
+        protected Layer(int curNeurons, int prevNeurons, string layerName,Network.LayerType layerType)
         {
             random = new Random();
             this.curNeurons = curNeurons;
@@ -33,7 +28,7 @@ namespace NeuralNetwork
             _neurons = new Neuron[curNeurons];
             Neurons = Neurons;
 
-            _weights = WeightInitialize(Network.MemoryMode.GET, type);
+            _weights = WeightInitialize(Network.MemoryMode.GET, layerName);
             //Инициировать нейроны с массивами весов
             for (int i = 0; i < curNeurons; i++)
             {
@@ -44,10 +39,9 @@ namespace NeuralNetwork
                 {
                     oneNeuronWeights[j] = _weights[i, j];
                 }
-                Neurons[i] = new Neuron(null, oneNeuronWeights, neuronType);
+                Neurons[i] = new Neuron(null, oneNeuronWeights, layerType);
             }
         }
-
 
         Neuron[] _neurons;
         public Neuron[] Neurons { get => _neurons; set => _neurons = value; }
@@ -62,14 +56,14 @@ namespace NeuralNetwork
             }
         }
 
-        public double[,] WeightInitialize(Network.MemoryMode mode, string layerType)
+        public double[,] WeightInitialize(Network.MemoryMode mode, string layerName)
         {
             double[,] _weights = new double[curNeurons, prevNeurons];
             XmlDocument weights_doc = new XmlDocument();
             XmlElement weights_root;
-            if (File.Exists($"{Path.Combine(NetworkParameters.weightsPath, layerType)}.xml"))
+            if (File.Exists($"{Path.Combine(NetworkParameters.weightsPath, layerName)}.xml"))
             {
-                weights_doc.Load($"{Path.Combine(NetworkParameters.weightsPath, layerType)}.xml");
+                weights_doc.Load($"{Path.Combine(NetworkParameters.weightsPath, layerName)}.xml");
                 weights_root = weights_doc.DocumentElement;
             }
             else
@@ -77,8 +71,8 @@ namespace NeuralNetwork
                 weights_root = weights_doc.CreateElement("Weights");
                 weights_doc.AppendChild(weights_root);
             }
-            int weightsElementCount = weights_root.ChildNodes.Count;
 
+            int weightsElementCount = weights_root.ChildNodes.Count;
             if (weights_root.ChildNodes.Count < curNeurons * prevNeurons)
             {
                 for (int i = 0; i < (curNeurons * prevNeurons) - weightsElementCount; i++)
@@ -88,7 +82,7 @@ namespace NeuralNetwork
                     weight.InnerText = (random.Next(-99999, 99999) * 0.0001).ToString();
                     weights_root.AppendChild(weight);
                 }
-                weights_doc.Save($"{Path.Combine(NetworkParameters.weightsPath, layerType)}.xml");
+                weights_doc.Save($"{Path.Combine(NetworkParameters.weightsPath, layerName)}.xml");
             }
 
             switch (mode)
@@ -113,7 +107,7 @@ namespace NeuralNetwork
                             weights_root.ChildNodes.Item(_weights.GetLength(1) * i + j).InnerText = _neurons[i].Weights[j].ToString();
                         }
                     }
-                    weights_doc.Save($"{Path.Combine(NetworkParameters.weightsPath, layerType)}.xml");
+                    weights_doc.Save($"{Path.Combine(NetworkParameters.weightsPath, layerName)}.xml");
                     break;
             }
             return _weights;
@@ -121,48 +115,13 @@ namespace NeuralNetwork
         //для прямых проходов
         public abstract void StraightPass(Network net, Layer nextLayer);
         //для обучения - обратное прохождение
-        public double[] MiniBatchBackwardPass(double[] errors)
+        public abstract double[] MiniBatchBackwardPass(double[] errors);
+
+        public double GetHiddenDerivative(double output)
         {
-            double[] error_sum = new double[prevNeurons];
-            double[] update_speed = new double[prevNeurons];
-            double gradient = 0;
-            double range = Math.Sqrt(1d / prevNeurons);
-
-            for (int j = 0; j < prevNeurons; j++)
-            {
-                error_sum[j] = 0;
-                update_speed[j] = beta;
-            }
-
-            for (int i = 0; i < curNeurons; i++)
-            {
-                for (int j = 0; j < prevNeurons; j++)
-                {
-                    gradient = GetGradient(errors[i], GetDerivative(Neurons[i].Output));
-                    gradient += lambda * Neurons[i].Weights[j];
-                    if (double.IsNaN(gradient) || double.IsInfinity(gradient))
-                    {
-                        gradient=double.Epsilon;
-                    }
-
-                    update_speed[j] = beta * update_speed[j] - learningRate * gradient; // вычисляем новую скорость
-                    error_sum[j] += Neurons[i].Weights[j] * update_speed[j];
-                    Neurons[i].Weights[j] -= update_speed[j] * Neurons[i].Inputs[j];
-
-                    //error_sum[j] += Neurons[i].Weights[j] * gradient;
-                    //Neurons[i].Weights[j] -= gradient * learningRate * Neurons[i].Inputs[j];
-
-                    if (double.IsNaN(Neurons[i].Weights[j]) || double.IsInfinity(Neurons[i].Weights[j]))
-                    {
-                        Neurons[i].Weights[j] = random.NextDouble() * range * 2 - range;
-                    }
-                }
-            }
-            return error_sum;
+            return (output>0?1:output* NetworkParameters.alpha);
         }
-
-        //Производная от функции RELU
-        public double GetDerivative(double output)
+        public double GetOutputDerivative(double output)
         {
             return output * (1 - output);
         }

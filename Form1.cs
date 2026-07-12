@@ -37,9 +37,7 @@ namespace DiplomPrototype
         {
             if (File.Exists(NetworkParameters.testSymbolsPath))
             {
-                network.AccuracyAssessment();
-                UpdateAccuracyGraphic();
-                UpdateResultInfo();
+                MakePrediction();
             }
             else
             {
@@ -53,7 +51,10 @@ namespace DiplomPrototype
             {
                 Label_RightAnswer.Text = NetworkParameters.ANSWER_SET[network.trueIndex];
             }
-            Laber_NetworkAnswer.Text = NetworkParameters.ANSWER_SET[network.predictIndex];
+            if (network.predictIndex >= 0)
+            {
+                Laber_NetworkAnswer.Text = NetworkParameters.ANSWER_SET[network.predictIndex];
+            }
             Label_precitionCountToSession.Text = network.GetPredictionCountToSession().ToString();
             label_epochCount.Text = network.GetLossArray().Length.ToString();
         }
@@ -70,7 +71,7 @@ namespace DiplomPrototype
             DialogResult dialog = MessageBox.Show("Прогресс обучения будет потерян. Задать весам случайное значение?", "Внимание!", MessageBoxButtons.YesNo);
             if (dialog == DialogResult.Yes)
             {
-                network.ResetWeights();
+                network.ResetNeuralNetworkWeights();
                 network = new Network(_inpNeurons, NetworkParameters.NEURONS_COUNT, NetworkParameters.ANSWER_SET.Length, drawSymbolsClass1);
                 MessageBox.Show("Веса сброшени, и загружены в нейросеть с новыми значениями");
             }
@@ -125,7 +126,6 @@ namespace DiplomPrototype
             if (dialog == DialogResult.Yes)
             {
                 network.Train(network);
-                //network.AccuracyAssessment();
                 UpdateAccuracyGraphic();
                 UpdateLossGraphic();
                 UpdateResultInfo();
@@ -143,7 +143,7 @@ namespace DiplomPrototype
         {
             double[] accuracy = network.GetAccuracyArray();
             Chart_AccuracyGraphic.Series[0].Points.Clear();
-            //label_averageAccuracy.Text = accuracy.Average().ToString();
+            label_averageAccuracy.Text = accuracy.Average().ToString();
             for (int i = 0; i < accuracy.Length; i++)
             {
                 Chart_AccuracyGraphic.Series[0].Points.AddXY(i, accuracy[i]);
@@ -160,9 +160,18 @@ namespace DiplomPrototype
             }
         }
 
-        private void drawSymbolsClass1_MouseMove_1(object sender, MouseEventArgs e)
+        private void button_multipleTests_Click(object sender, EventArgs e)
         {
-
+            if (File.Exists(NetworkParameters.testSymbolsPath))
+            {
+                network.AccuracyAssessment();
+                UpdateAccuracyGraphic();
+                UpdateResultInfo();
+            }
+            else
+            {
+                MessageBox.Show($"Файл {NetworkParameters.testSymbolsPath} в корневой папке проекта: {Path.Combine(Environment.CurrentDirectory, "DataSets")} не найден");
+            }
         }
     }
 }

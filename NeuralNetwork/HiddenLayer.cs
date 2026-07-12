@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NeuralNetwork
 {
     class HiddenLayer : Layer
     {
-        public HiddenLayer(int curNeurons, int prevNeurons, Network.NeuronType neuronType, string type) : base(curNeurons, prevNeurons, neuronType, type) { }
+        Random random;
+        public HiddenLayer(int curNeurons, int prevNeurons, string type, Network.LayerType layerType) : base(curNeurons, prevNeurons, type, layerType) { random = new Random(); }
         public override void StraightPass(Network net, Layer nextLayer)
         {
             double[] hiddenOut = new double[Neurons.Length];
@@ -18,6 +15,41 @@ namespace NeuralNetwork
                 hiddenOut[i] = Neurons[i].Output;
             }
             nextLayer.Data = hiddenOut;
+        }
+        public override double[] MiniBatchBackwardPass(double[] errors)
+        {
+            double[] error_sum = new double[prevNeurons];
+            double[] update_speed = new double[prevNeurons];
+            double gradient = 0;
+
+            for (int j = 0; j < prevNeurons; j++)
+            {
+                error_sum[j] = 0;
+                update_speed[j] = beta;
+            }
+
+            for (int i = 0; i < curNeurons; i++)
+            {
+                for (int j = 0; j < prevNeurons; j++)
+                {
+                    gradient = GetGradient(errors[i], GetHiddenDerivative(Neurons[i].Output));
+                    gradient += lambda * Neurons[i].Weights[j];
+                    if (double.IsNaN(gradient) || double.IsInfinity(gradient))
+                    {
+                        gradient = 1;
+                    }
+
+                    update_speed[j] = beta * update_speed[j] - learningRate * gradient; // вычисляем новую скорость
+                    error_sum[j] += Neurons[i].Weights[j] * update_speed[j];
+                    Neurons[i].Weights[j] -= update_speed[j] * Neurons[i].Inputs[j];
+
+                    if (double.IsNaN(Neurons[i].Weights[j]) || double.IsInfinity(Neurons[i].Weights[j]))
+                    {
+                        Neurons[i].Weights[j] = random.NextDouble();
+                    }
+                }
+            }
+            return error_sum;
         }
     }
 }

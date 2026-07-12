@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace DrawSymbols
@@ -32,27 +27,27 @@ namespace DrawSymbols
             scaledHeight = _currentHeight / _DATA_MATRIX.GetLength(0);
         }
 
-        public DrawSymbolsClass() : base()
-        {
-            _matrixRows = 28;
-            _matrixColumns = 28;
+        //public DrawSymbolsClass() : base()
+        //{
+        //    _matrixRows = 1;
+        //    _matrixColumns = 1;
 
-            _DATA_MATRIX = new int[_matrixRows, _matrixColumns];
-            DATA_MATRIX = DATA_MATRIX;
+        //    _DATA_MATRIX = new int[_matrixRows, _matrixColumns];
+        //    DATA_MATRIX = DATA_MATRIX;
 
-            this._standartWeight = 224;
-            this._standartHeight = 224;
+        //    this._standartWeight = 1;
+        //    this._standartHeight = 1;
 
-            this.drawWeight = drawWeight;
-            this.drawHeight = drawHeight;
+        //    this.drawWeight = 1;
+        //    this.drawHeight = 1;
 
-            _currentWeight = this._standartWeight;
-            _currentHeight = this._standartHeight;
+        //    _currentWeight = this._standartWeight;
+        //    _currentHeight = this._standartHeight;
 
-            _isDrawMode = false;
-            scaledWeight = _currentWeight / _DATA_MATRIX.GetLength(1);
-            scaledHeight = _currentHeight / _DATA_MATRIX.GetLength(0);
-        }
+        //    _isDrawMode = false;
+        //    scaledWeight = _currentWeight / _DATA_MATRIX.GetLength(1);
+        //    scaledHeight = _currentHeight / _DATA_MATRIX.GetLength(0);
+        //}
 
         public int scaledWeight;
         public int scaledHeight;
@@ -114,7 +109,6 @@ namespace DrawSymbols
             }
         }
 
-
         protected override void OnPaint(PaintEventArgs e)
         {
             Brush pixelColor=null;
@@ -154,7 +148,10 @@ namespace DrawSymbols
             for (int k = 1; k < row.Length; k++)
             {
                 i = (k - 1) / _DATA_MATRIX.GetLength(1);
-                j = (k - 1) - i * _DATA_MATRIX.GetLength(0);
+                i%= _DATA_MATRIX.GetLength(0);
+
+                j = (k - 1) - i * _DATA_MATRIX.GetLength(1);
+                j %= _DATA_MATRIX.GetLength(1);
 
                 _DATA_MATRIX[i, j] = int.Parse(row[k]);
             }
@@ -196,35 +193,45 @@ namespace DrawSymbols
 
         public void MNISTNormalizeMatrix()
         {
-            TurnRightMatrix();
-            ReflectMatrix();
+            HorizontalReflectMatrix();
+            TurnLeftMatrix();
         }
 
         public void TurnRightMatrix()
         {
             int n = DATA_MATRIX.GetLength(0);
             int m = DATA_MATRIX.GetLength(1);
-            int buf;
             for (int i = 0; i < n / 2; i++)
             {
-                for (int j = 0; j < m / 2; j++)
+                for (int j = i; j < m - i - 1; j++)
                 {
-                    buf = DATA_MATRIX[i, j];
-                    DATA_MATRIX[i, j] = DATA_MATRIX[n - 1 - j, i];
-                    DATA_MATRIX[n - 1 - j, i] = DATA_MATRIX[n - 1 - i, n - 1 - j];
-                    DATA_MATRIX[n - 1 - i, n - 1 - j] = DATA_MATRIX[j, n - 1 - i];
-                    DATA_MATRIX[j, n - 1 - i] = buf;
+                    int temp = DATA_MATRIX[i, j];
+                    DATA_MATRIX[i, j] = DATA_MATRIX[m - j - 1, i];
+                    DATA_MATRIX[m - j - 1, i] = DATA_MATRIX[n - i - 1, m - j - 1];
+                    DATA_MATRIX[n - i - 1, m - j - 1] = DATA_MATRIX[j, n - i - 1];
+                    DATA_MATRIX[j, n - i - 1] = temp;
                 }
             }
             Invalidate();
         }
         public void TurnLeftMatrix()
         {
-            TurnRightMatrix();
-            TurnRightMatrix();
-            TurnRightMatrix();
+            int n = DATA_MATRIX.GetLength(0);
+            int m = DATA_MATRIX.GetLength(1);
+            for (int i = 0; i < n / 2; i++)
+            {
+                for (int j = i; j < m - i - 1; j++)
+                {
+                    int temp = DATA_MATRIX[i, j];
+                    DATA_MATRIX[i, j] = DATA_MATRIX[j, n - i - 1];
+                    DATA_MATRIX[j, n - i - 1] = DATA_MATRIX[n - i - 1, m - j - 1];
+                    DATA_MATRIX[n - i - 1, m - j - 1] = DATA_MATRIX[m - j - 1, i];
+                    DATA_MATRIX[m - j - 1, i] = temp;
+                }
+            }
+            Invalidate();
         }
-        public void ReflectMatrix()
+        public void HorizontalReflectMatrix()
         {
             int n = DATA_MATRIX.GetLength(0);
             int m = DATA_MATRIX.GetLength(1);
@@ -234,8 +241,8 @@ namespace DrawSymbols
                 for (int j = 0; j < m / 2; j++)
                 {
                     buf = DATA_MATRIX[i, j];
-                    DATA_MATRIX[i, j] = DATA_MATRIX[i, n - 1 - j];
-                    DATA_MATRIX[i, n - 1 - j] = buf;
+                    DATA_MATRIX[i, j] = DATA_MATRIX[i, m - 1 - j];
+                    DATA_MATRIX[i, m - 1 - j] = buf;
                 }
             }
             Invalidate();

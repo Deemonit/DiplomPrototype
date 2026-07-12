@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Xml;
 using DrawSymbols;
 using NeuralNetworkConstructor;
@@ -23,7 +19,7 @@ namespace NeuralNetwork
         private string testSymbolsPath = NetworkParameters.testSymbolsPath;
 
         public enum MemoryMode { GET, SET }
-        public enum NeuronType { Hidden, Output }
+        public enum LayerType { HIDDEN, OUTPUT }
 
         private string[] _TRAIN_SET;
         private string[] _TEST_SET;
@@ -56,7 +52,7 @@ namespace NeuralNetwork
 
             drawSymbols = draw;
 
-            DownLoadSymbolsFile(_TEST_SET, NetworkParameters.testSymbolsPath);
+            DownloadSymbolsFile(_TEST_SET, NetworkParameters.testSymbolsPath);
             DownloadAccurasy(MemoryMode.GET);
             DownloadAverageLoss(MemoryMode.GET);
 
@@ -67,44 +63,47 @@ namespace NeuralNetwork
             {
                 for (int i = 0; i < _HIDDEN_LAYERS.Length; i++)
                 {
-                    _HIDDEN_LAYERS[i] = new HiddenLayer(hidNeurons[i], (i > 0 ? hidNeurons[i - 1] : inpNeurons), Network.NeuronType.Hidden, $"HiddenLayer{i + 1}");
+                    _HIDDEN_LAYERS[i] = new HiddenLayer(hidNeurons[i], (i > 0 ? hidNeurons[i - 1] : inpNeurons), $"HiddenLayer{i + 1}", Network.LayerType.HIDDEN);
                 }
-                outputLayer = new OutputLayer(outNeurons, hidNeurons[hidNeurons.Length - 1], Network.NeuronType.Output, "OutputLayer");
+                outputLayer = new OutputLayer(outNeurons, hidNeurons[hidNeurons.Length - 1], "OutputLayer", Network.LayerType.OUTPUT);
             }
             else
             {
-                outputLayer = new OutputLayer(outNeurons, inpNeurons, Network.NeuronType.Output, "OutputLayer");
+                outputLayer = new OutputLayer(outNeurons, inpNeurons, "OutputLayer", Network.LayerType.OUTPUT);
             }
         }
 
         public void StraightForward(int[,] DATA_MATRIX)
         {
-            //Данные для скрытого слоя загружаются тут, а не во входном слое, из-за несогласованности доступа классов этих слоёв
-            inputLayer = new InputLayer(DATA_MATRIX, DATA_MATRIX.GetLength(0), DATA_MATRIX.GetLength(1));
-
-            if (_HIDDEN_LAYERS.Length > 0)
+            if (DATA_MATRIX != null)
             {
-                _HIDDEN_LAYERS[0].Data = inputLayer.outputs;
-                for (int i = 0; i < _HIDDEN_LAYERS.Length - 1; i++)
+                //Данные для скрытого слоя загружаются тут, а не во входном слое, из-за несогласованности доступа классов этих слоёв
+                inputLayer = new InputLayer(DATA_MATRIX, DATA_MATRIX.GetLength(0), DATA_MATRIX.GetLength(1));
+
+                if (_HIDDEN_LAYERS.Length > 0)
                 {
-                    _HIDDEN_LAYERS[i].StraightPass(null, _HIDDEN_LAYERS[i + 1]);
+                    _HIDDEN_LAYERS[0].Data = inputLayer.outputs;
+                    for (int i = 0; i < _HIDDEN_LAYERS.Length - 1; i++)
+                    {
+                        _HIDDEN_LAYERS[i].StraightPass(null, _HIDDEN_LAYERS[i + 1]);
+                    }
+                    _HIDDEN_LAYERS[_HIDDEN_LAYERS.Length - 1].StraightPass(null, outputLayer);
                 }
-                _HIDDEN_LAYERS[_HIDDEN_LAYERS.Length - 1].StraightPass(null, outputLayer);
-            }
-            else
-            {
-                outputLayer.Data = inputLayer.outputs;
-            }
+                else
+                {
+                    outputLayer.Data = inputLayer.outputs;
+                }
 
-            outputLayer.StraightPass(this, null);
+                outputLayer.StraightPass(this, null);
 
-            predictIndex = Array.IndexOf(RESULTS, RESULTS.Max());
+                predictIndex = Array.IndexOf(RESULTS, RESULTS.Max());
+            }
         }
 
         public void Train(Network network)
         {
             ResetAccuracy();
-            DownLoadSymbolsFile(_TRAIN_SET, trainSymbolsPath);
+            DownloadSymbolsFile(_TRAIN_SET, trainSymbolsPath);
 
             int i = 0;
             int miniBatchSize = NetworkParameters.minibatchSize;
@@ -133,19 +132,17 @@ namespace NeuralNetwork
                         for (int e = 0; e < RESULTS.Length; e++)
                         {
                             mark_right_answers[e] = (e == trueIndex ? 1 : 0);
-                            mini_batch_errors[e] += -mark_right_answers[e] * Math.Log(RESULTS[e]) - (1 - mark_right_answers[e]) * Math.Log(1 - RESULTS[e]);
-                            //mini_batch_errors[e] += Math.Pow(mark_right_answers[e] - RESULTS[e], 2);
                             //mini_batch_errors[e] += RESULTS[e] - mark_right_answers[e];
+                            mini_batch_errors[e] += -1 * (mark_right_answers[e] * Math.Log(RESULTS[e] + 1e-10) + (1 - mark_right_answers[e]) * Math.Log(1 - RESULTS[e] + 1e-10));
                             if (double.IsNaN(mini_batch_errors[e]) || double.IsInfinity(mini_batch_errors[e]))
                             {
-                                mini_batch_errors[e] = double.Epsilon;
+                                mini_batch_errors[e] = 1;
                             }
                         }
                     }
                     for (int e = 0; e < mini_batch_errors.Length; e++)
                     {
                         mini_batch_errors[e] /= miniBatchSize;
-                        //mini_batch_errors[e] *= 1 / miniBatchSize;
                         _lossToEpoch += mini_batch_errors[e];
                     }
                     prev_layer_errors = outputLayer.MiniBatchBackwardPass(mini_batch_errors);
@@ -166,9 +163,8 @@ namespace NeuralNetwork
             outputLayer.WeightInitialize(MemoryMode.SET, "OutputLayer");
             DownloadAverageLoss(MemoryMode.GET);
             ResetAccuracy();
-            //MessageBox.Show($"Пройдёно эпох {i}, погрешность {lossFunction}");
         }
-
+        //Прямой проход нейросети по примеру, из определённого набора
         private void HandleRandomSymbolFromSet(string[] symbolsArray, int maxAnswerIndex)
         {
             int randomRow;
@@ -178,7 +174,7 @@ namespace NeuralNetwork
             do
             {
                 searchingIndex = random.Next(symbolsArray.Length);
-                symbol = symbolsArray[searchingIndex].Split(',');
+                symbol = symbolsArray[searchingIndex].Split(NetworkParameters.splitSign);
             } while (int.Parse(symbol[0]) >= maxAnswerIndex);
 
             drawSymbols.DownloadSymbolToMatrix(symbol);
@@ -195,8 +191,8 @@ namespace NeuralNetwork
 
             UpdateAccuracy();
         }
-
-        private void DownLoadSymbolsFile(string[] symbolsArray, string filePath)
+        //Загружает набор примеров из файла в массив
+        private void DownloadSymbolsFile(string[] symbolsArray, string filePath)
         {
             int i = 0;
             string row;
@@ -210,8 +206,8 @@ namespace NeuralNetwork
                 streamReader.Close();
             }
         }
-
-        public void ResetWeights()
+        //Метод для вызова из вне, помимо сброса весов, обновляет статистику
+        public void ResetNeuralNetworkWeights()
         {
             for (int i = 0; i < _HIDDEN_LAYERS.Length; i++)
             {
@@ -221,7 +217,7 @@ namespace NeuralNetwork
             ResetAccuracy();
             DeleteLossStatistic();
         }
-
+        //Только сбрасывает веса
         private void ResetWeights(string layerType)
         {
             XmlDocument weights_doc = new XmlDocument();
@@ -230,7 +226,7 @@ namespace NeuralNetwork
             weights_root.RemoveAll();
             weights_doc.Save($"{Path.Combine(NetworkParameters.weightsPath, layerType)}.xml");
         }
-
+        //Обнуляет тосность после завершения обучения
         private void ResetAccuracy()
         {
             for (int i = 0; i < NetworkParameters.ANSWER_SET.Length; i++)
@@ -246,6 +242,7 @@ namespace NeuralNetwork
             accuracyRoot.RemoveAll();
             accuracyDoc.Save($"{Path.Combine(NetworkParameters.accuracyPath)}");
         }
+        //Удалает всю статистику прогресса обучения после сброса весов
         private void DeleteLossStatistic()
         {
             XmlDocument lossDoc = new XmlDocument();
@@ -255,6 +252,7 @@ namespace NeuralNetwork
             lossRoot.RemoveAll();
             lossDoc.Save($"{Path.Combine(NetworkParameters.averageLossPath)}");
         }
+        //Пересчитывает точность
         private void UpdateAccuracy()
         {
             if (_answersCount[trueIndex] < 0)
@@ -278,13 +276,13 @@ namespace NeuralNetwork
                 PredictRandomTestSymbol();
             }
         }
-
+        //Метод для вызова из вне. Выполняет предсказыание и обновляет статистику
         public void PredictRandomTestSymbol()
         {
             HandleRandomSymbolFromSet(_TEST_SET, RESULTS.Length);
             DownloadAccurasy(MemoryMode.SET);
         }
-
+        //Чтение или запись точности
         private void DownloadAccurasy(MemoryMode mode)
         {
             XmlDocument accuracyDoc = new XmlDocument();
@@ -312,8 +310,8 @@ namespace NeuralNetwork
                     answersCountElement = accuracyDoc.CreateElement($"answersCount");
                     rightAnswersCountElement = accuracyDoc.CreateElement($"rightAnswersCount");
 
-                    answersCountElement.InnerText = "-1";
-                    rightAnswersCountElement.InnerText = "-1";
+                    answersCountElement.InnerText = "0";
+                    rightAnswersCountElement.InnerText = "0";
 
                     accuracyElement.AppendChild(answersCountElement);
                     accuracyElement.AppendChild(rightAnswersCountElement);
@@ -336,7 +334,7 @@ namespace NeuralNetwork
                             }
                             else
                             {
-                                _ACCURACY[i] = -0.1;
+                                _ACCURACY[i] = 0;
                             }
                         }
                         break;
@@ -350,6 +348,7 @@ namespace NeuralNetwork
                     }
             }
         }
+        //Чтение или запись прогресса обучения
         private void DownloadAverageLoss(MemoryMode mode)
         {
             XmlDocument lossDoc = new XmlDocument();
@@ -391,17 +390,18 @@ namespace NeuralNetwork
                     }
             }
         }
-
+        //Позволяет получить точность нейросети
         public double[] GetAccuracyArray()
         {
             DownloadAverageLoss(MemoryMode.GET);
             return _ACCURACY;
         }
+        //Позволяет получить прогресс обучения нейросети
         public double[] GetLossArray()
         {
             return _LOSS_TO_EPOCH;
         }
-
+        //Позволяет получить количество пройденых тестов нейросети
         public int GetPredictionCountToSession()
         {
             return _answersCount.Sum();

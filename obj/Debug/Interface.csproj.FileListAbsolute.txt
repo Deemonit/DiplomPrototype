@@ -32,3 +32,5 @@ G:\C#\DiplomPrototype\obj\Debug\Interface.csproj.CoreCompileInputs.cache
 G:\C#\DiplomPrototype\obj\Debug\Interface.csproj.CopyComplete
 G:\C#\DiplomPrototype\obj\Debug\DiplomPrototype.exe
 G:\C#\DiplomPrototype\obj\Debug\DiplomPrototype.pdb
+D:\DiplomPrototype\obj\Debug\DiplomPrototype.exe
+D:\DiplomPrototype\obj\Debug\DiplomPrototype.pdb

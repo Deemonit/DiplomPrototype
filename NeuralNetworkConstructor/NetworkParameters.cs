@@ -1,24 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NeuralNetworkConstructor
 {
     public class NetworkParameters
     {
         public static string rootDirectory = Environment.CurrentDirectory;
+        //public static string testSymbolsPath = Path.Combine(rootDirectory, "DataSets", "doubleDigit.csv");
         public static string testSymbolsPath = Path.Combine(rootDirectory, "DataSets", "emnist-byclass-test.csv");
-        //public static string testSymbolsPath = Path.Combine(rootDirectory, "DataSets", "emnist-byclass-train.csv");
         public static string trainSymbolsPath = Path.Combine(rootDirectory, "DataSets", "emnist-byclass-train.csv");
         public static string weightsPath = Path.Combine(rootDirectory, "Weights");
         public static string accuracyPath = Path.Combine(rootDirectory, "Accuracy", "Accuracy.xml");
         public static string averageLossPath = Path.Combine(rootDirectory, "AverageLoss", "AverageLoss.xml");
 
+        public static char splitSign = ',';
+
         public static int trainFileSize = 697932;
         public static int testFileSize = 116323;
+        //public static int testFileSize = 1;
 
         public static int accuracyTestsCount = 10000;
 
@@ -31,21 +30,23 @@ namespace NeuralNetworkConstructor
 
         public static int[] NEURONS_COUNT = new int[]
         {
-            //196,392,196
-            4,4,4
+            64,128,256
+            //1,1,1
         };
 
         //Настройка гиперпараметров нейросети
-        public static double learningRate = 0.025d;//скорость обучения
-        public static double regilarization = 0.9;//регуляризация (L2)
-        public static double gradientMoment = 0.9;//скорость обновления весов
+        public static double learningRate = 0.0001d;//скорость обучения
+        public static double regilarization = 0.3;//регуляризация (L2)
+        public static double gradientMoment = 0.95;//инерция весов
 
-        public static double lossThreshold = 0.01;
+        public static double lossThreshold = 0.001;
 
-        public static int epochCount = 250;
-        public static int batchSize = 400;
-        public static int minibatchSize = 20;
-        public static int minibatchCount = batchSize / minibatchSize;
+        public static int epochCount = 100;
+        public static int batchSize = 128;
+        public static int minibatchSize = 32;
+        public static int minibatchCount = (int)batchSize / minibatchSize;
+
+        public static double alpha = 0.01;
 
         //Настройка параметров изображения
         public static int imageRows = 28;
@@ -56,5 +57,8 @@ namespace NeuralNetworkConstructor
         
         public static int drawComponentWeight = 448;
         public static int drawComponentHeight = 448;
+
+        public static int maxInputValue = 255;
+        public static int minInputValue = 0;
     }
 }
