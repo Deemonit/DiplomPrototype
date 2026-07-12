@@ -11,7 +11,7 @@ namespace NeuralNetwork
             double[] hiddenOut = new double[Neurons.Length];
             for (int i = 0; i < hiddenOut.Length; i++)
             {
-                Neurons[i].Output = Neurons[i].Output;
+                Neurons[i].CalculateOutput();
                 hiddenOut[i] = Neurons[i].Output;
             }
             nextLayer.Data = hiddenOut;

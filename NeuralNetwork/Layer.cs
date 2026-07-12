@@ -80,7 +80,7 @@ namespace NeuralNetwork
                 for (int i = 0; i < (curNeurons * prevNeurons) - weightsElementCount; i++)
                 {
                     XmlElement weight = weights_doc.CreateElement("weight");
-                    double weightValue = GeneratedWeightValue() * limit;
+                    double weightValue = GeneratedWeightValue() * standardDeviation;
                     weight.InnerText = weightValue.ToString();//(random.Next(-99999, 99999) * 0.0001).ToString();
                     weights_root.AppendChild(weight);
                 }

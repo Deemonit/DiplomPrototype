@@ -1,5 +1,6 @@
 ﻿using System;
 using static System.Math;
+using NeuralNetworkConstructor;
 
 namespace NeuralNetwork
 {

@@ -13,7 +13,13 @@ namespace NeuralNetwork
                 Neurons[i].CalculateOutput();
                 net.RESULTS[i] = Neurons[i].Output;
             }
-            net.RESULTS = Softmax(net.RESULTS);
+
+            double[] probabilities = Softmax(net.RESULTS);
+            
+            for (int i = 0; i < probabilities.Length; i++)
+            {
+                net.RESULTS[i] = probabilities[i];
+            }
         }
 
         //для обучения - обратное прохождение
@@ -33,7 +39,7 @@ namespace NeuralNetwork
             {
                 for (int j = 0; j < prevNeurons; j++)
                 {
-                    gradient = GetGradient(errors[i], GetOutputDerivative(Neurons[i].Output));
+                    gradient = GetGradient(errors[i], GetOutputDerivative(net.RESULTS[i]);
                     gradient += lambda * Neurons[i].Weights[j];
                     if (double.IsNaN(gradient) || double.IsInfinity(gradient))
                     {
@@ -43,11 +49,6 @@ namespace NeuralNetwork
                     update_speed[j] = beta * update_speed[j] - learningRate * gradient; // вычисляем новую скорость
                     error_sum[j] += Neurons[i].Weights[j] * update_speed[j];
                     Neurons[i].Weights[j] -= update_speed[j] * Neurons[i].Inputs[j];
-
-                    if (double.IsNaN(Neurons[i].Weights[j]) || double.IsInfinity(Neurons[i].Weights[j]))
-                    {
-                        Neurons[i].Weights[j] = random.NextDouble();
-                    }
                 }
             }
             return error_sum;
