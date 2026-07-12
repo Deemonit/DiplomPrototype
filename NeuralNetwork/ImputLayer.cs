@@ -17,7 +17,7 @@ namespace NeuralNetwork
             {
                 for (int j = 0; j < dataMatrixLength_1; j++)
                 {
-                    outputs[i * dataMatrixLength_1 + j] = (dataMatrix[i,j] - NetworkParameters.minInputValue) / (NetworkParameters.maxInputValue - NetworkParameters.minInputValue);
+                    outputs[i * dataMatrixLength_1 + j] = (dataMatrix[i,j] - NetworkParameters.minInputValue) / (double)(NetworkParameters.maxInputValue - NetworkParameters.minInputValue);
                 }
             }
         }

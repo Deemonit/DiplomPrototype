@@ -58,6 +58,7 @@ namespace NeuralNetwork
 
         public double[,] WeightInitialize(Network.MemoryMode mode, string layerName)
         {
+
             double[,] _weights = new double[curNeurons, prevNeurons];
             XmlDocument weights_doc = new XmlDocument();
             XmlElement weights_root;
@@ -72,14 +73,15 @@ namespace NeuralNetwork
                 weights_doc.AppendChild(weights_root);
             }
 
+            double limit = Math.Sqrt(2.0 / prevNeurons);
             int weightsElementCount = weights_root.ChildNodes.Count;
             if (weights_root.ChildNodes.Count < curNeurons * prevNeurons)
             {
                 for (int i = 0; i < (curNeurons * prevNeurons) - weightsElementCount; i++)
                 {
                     XmlElement weight = weights_doc.CreateElement("weight");
-
-                    weight.InnerText = (random.Next(-99999, 99999) * 0.0001).ToString();
+                    double weightValue = GeneratedWeightValue(random) * limit;
+                    weight.InnerText = weightValue.ToString();//(random.Next(-99999, 99999) * 0.0001).ToString();
                     weights_root.AppendChild(weight);
                 }
                 weights_doc.Save($"{Path.Combine(NetworkParameters.weightsPath, layerName)}.xml");
@@ -128,6 +130,13 @@ namespace NeuralNetwork
         public double GetGradient(double error, double derivative)
         {
             return error * derivative;
+        }
+        private double GeneratedWeightValue()
+        {
+            double u1 = 1.0 - random.NextDouble();
+            double u2 = 1.0 - random.NextDouble();
+
+            return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
         }
     }
 }

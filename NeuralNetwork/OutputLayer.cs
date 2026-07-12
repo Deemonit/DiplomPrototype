@@ -13,6 +13,7 @@ namespace NeuralNetwork
                 Neurons[i].Output = Neurons[i].Output;
                 net.RESULTS[i] = Neurons[i].Output;
             }
+            net.RESULTS = Softmax(net.RESULTS);
         }
 
         //для обучения - обратное прохождение
@@ -50,6 +51,44 @@ namespace NeuralNetwork
                 }
             }
             return error_sum;
+        }
+
+        //Функция для классификаторов с 1-им правильным ответом
+        public static double[] Softmax(double[] logits)
+        {
+            if (logits == null)
+                throw new ArgumentNullException(nameof(logits));
+
+            if (logits.Length == 0)
+                throw new ArgumentException(
+                    "Массив логитов не должен быть пустым.",
+                    nameof(logits));
+
+            var probabilities = new double[logits.Length];
+
+            // Вычитаем максимум для численной устойчивости.
+            double maxLogit = logits[0];
+
+            for (int i = 1; i < logits.Length; i++)
+            {
+                if (logits[i] > maxLogit)
+                    maxLogit = logits[i];
+            }
+
+            double sum = 0.0;
+
+            for (int i = 0; i < logits.Length; i++)
+            {
+                probabilities[i] = Math.Exp(logits[i] - maxLogit);
+                sum += probabilities[i];
+            }
+
+            for (int i = 0; i < probabilities.Length; i++)
+            {
+                probabilities[i] /= sum;
+            }
+
+            return probabilities;
         }
     }
 }
