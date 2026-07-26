@@ -39,7 +39,7 @@ namespace NeuralNetwork
             {
                 for (int j = 0; j < prevNeurons; j++)
                 {
-                    gradient = GetGradient(errors[i], GetOutputDerivative(net.RESULTS[i]);
+                    gradient = GetGradient(errors[i], GetOutputDerivative(Neurons[i].Output);
                     gradient += lambda * Neurons[i].Weights[j];
                     if (double.IsNaN(gradient) || double.IsInfinity(gradient))
                     {

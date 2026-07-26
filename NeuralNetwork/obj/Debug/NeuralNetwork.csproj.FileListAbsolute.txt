@@ -9,3 +9,5 @@ G:\C#\DiplomPrototype\NeuralNetwork\obj\Debug\NeuralNetwork.csproj.CoreCompileIn
 G:\C#\DiplomPrototype\NeuralNetwork\obj\Debug\NeuralNetwork.csproj.CopyComplete
 G:\C#\DiplomPrototype\NeuralNetwork\obj\Debug\NeuralNetwork.dll
 G:\C#\DiplomPrototype\NeuralNetwork\obj\Debug\NeuralNetwork.pdb
+D:\DiplomPrototype\NeuralNetwork\obj\Debug\NeuralNetwork.dll
+D:\DiplomPrototype\NeuralNetwork\obj\Debug\NeuralNetwork.pdb
