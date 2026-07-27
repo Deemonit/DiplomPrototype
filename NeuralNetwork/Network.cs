@@ -186,8 +186,8 @@ namespace NeuralNetwork
                     miniBatchLoss = 0.0;
 
 
-                    double deltaSum = 0.0;
 
+                    double deltaSum = 0.0;
                     for (int sample = 0; sample < miniBatchSize; sample++)
                     {
                         // Загружает случайный символ и выполняет прямой проход.
@@ -226,9 +226,7 @@ namespace NeuralNetwork
                             // производная loss по логиту выходного нейрона.
                             outputDelta[outputIndex] = RESULTS[outputIndex] - target;
                         }
-
                         deltaSum = outputDelta.Sum();
-
                         if (Math.Abs(deltaSum) > 1e-9)
                         {
                             throw new ArithmeticException($"Сумма outputDelta должна быть около нуля: {deltaSum}");
