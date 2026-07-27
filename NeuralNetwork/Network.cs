@@ -177,7 +177,7 @@ namespace NeuralNetwork
 
             double miniBatchLoss = 0.0;
 
-            for (int epoch = 0; epoch < miniBatchCount; epoch++)
+            for (int epoch = 0; epoch < epochCount; epoch++)
             {
                 _lossToEpoch = 0.0;
                 //Прохождение мини-батчей
@@ -418,6 +418,7 @@ namespace NeuralNetwork
         //Чтение или запись прогресса обучения
         private void DownloadAverageLoss(MemoryMode mode)
         {
+
             XmlDocument lossDoc = new XmlDocument();
             XmlElement lossRoot;
             XmlElement lossElement;
@@ -456,6 +457,11 @@ namespace NeuralNetwork
                         break;
                     }
             }
+
+            lossDoc = null;
+            lossRoot = null;
+            lossElement = null;
+
         }
         //Позволяет получить точность нейросети
         public double[] GetAccuracyArray()
