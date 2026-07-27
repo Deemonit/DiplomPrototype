@@ -184,15 +184,17 @@ namespace NeuralNetwork
                 for (int batch = 0; batch < miniBatchCount; batch++)
                 {
                     miniBatchLoss = 0.0;
+                    // Ошибка каждого выходного нейрона.
+                    // Пока вычисляем её, но веса ещё не меняем.
 
                     for (int sample = 0; sample < miniBatchSize; sample++)
                     {
                         // Загружает случайный символ и выполняет прямой проход.
                         // После него RESULTS содержит вероятности Softmax.
-                        HandleRandomSymbolFromSet(_TRAIN_SET,RESULTS.Length);
+                        HandleRandomSymbolFromSet(_TRAIN_SET, RESULTS.Length);
 
                         // Берём вероятность правильного символа.
-                        double correctProbability = Math.Max(RESULTS[trueIndex],1e-12);
+                        double correctProbability = Math.Max(RESULTS[trueIndex], 1e-12);
 
                         //Ошибка для одного обучающего примера
                         // Categorical Cross-Entropy:
@@ -206,6 +208,28 @@ namespace NeuralNetwork
                         }
 
                         miniBatchLoss += sampleLoss;
+                        
+                        double[] outputDelta = new double[RESULTS.Length];
+
+                        for (int outputIndex = 0; outputIndex < RESULTS.Length; outputIndex++)
+                        {
+                            // Для правильного класса target = 1,
+                            // для всех остальных target = 0.
+                            double target = outputIndex == trueIndex
+                                ? 1.0
+                                : 0.0;
+
+                            // Softmax + Cross-Entropy:
+                            // производная loss по логиту выходного нейрона.
+                            outputDelta[outputIndex] = RESULTS[outputIndex] - target;
+                        }
+                    }
+
+                    double deltaSum = outputDelta.Sum();
+
+                    if (Math.Abs(deltaSum) > 1e-9)
+                    {
+                        throw new ArithmeticException($"Сумма outputDelta должна быть около нуля: {deltaSum}");
                     }
 
                     // Средний loss по изображениям данного мини-батча.
