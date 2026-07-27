@@ -219,7 +219,10 @@ namespace NeuralNetwork
                     //    prev_layer_errors = _HIDDEN_LAYERS[h].MiniBatchBackwardPass(prev_layer_errors);
                     //}
                 }
-                
+
+                // Средняя ошибка за всю эпоху:
+                _lossToEpoch /= miniBatchCount;
+
                 DownloadAverageLoss(MemoryMode.SET);
             }
             for (int h = 0; h < _HIDDEN_LAYERS.Length; h++)
