@@ -184,8 +184,9 @@ namespace NeuralNetwork
                 for (int batch = 0; batch < miniBatchCount; batch++)
                 {
                     miniBatchLoss = 0.0;
-                    // Ошибка каждого выходного нейрона.
-                    // Пока вычисляем её, но веса ещё не меняем.
+
+
+                    double deltaSum = 0.0;
 
                     for (int sample = 0; sample < miniBatchSize; sample++)
                     {
@@ -208,7 +209,9 @@ namespace NeuralNetwork
                         }
 
                         miniBatchLoss += sampleLoss;
-                        
+
+                        // Ошибка каждого выходного нейрона.
+                        // Пока вычисляем её, но веса ещё не меняем.
                         double[] outputDelta = new double[RESULTS.Length];
 
                         for (int outputIndex = 0; outputIndex < RESULTS.Length; outputIndex++)
@@ -223,14 +226,15 @@ namespace NeuralNetwork
                             // производная loss по логиту выходного нейрона.
                             outputDelta[outputIndex] = RESULTS[outputIndex] - target;
                         }
+
+                        deltaSum = outputDelta.Sum();
+
+                        if (Math.Abs(deltaSum) > 1e-9)
+                        {
+                            throw new ArithmeticException($"Сумма outputDelta должна быть около нуля: {deltaSum}");
+                        }
                     }
 
-                    double deltaSum = outputDelta.Sum();
-
-                    if (Math.Abs(deltaSum) > 1e-9)
-                    {
-                        throw new ArithmeticException($"Сумма outputDelta должна быть около нуля: {deltaSum}");
-                    }
 
                     // Средний loss по изображениям данного мини-батча.
                     miniBatchLoss /= miniBatchSize;
