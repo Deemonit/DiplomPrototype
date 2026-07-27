@@ -4,3 +4,9 @@ G:\C#\DiplomPrototype\NeuralNetworkConstructor\obj\Debug\NeuralNetworkConstructo
 G:\C#\DiplomPrototype\NeuralNetworkConstructor\obj\Debug\NeuralNetworkConstructor.csproj.CoreCompileInputs.cache
 G:\C#\DiplomPrototype\NeuralNetworkConstructor\obj\Debug\NeuralNetworkConstructor.dll
 G:\C#\DiplomPrototype\NeuralNetworkConstructor\obj\Debug\NeuralNetworkConstructor.pdb
+D:\DiplomPrototype\NeuralNetworkConstructor\bin\Debug\NeuralNetworkConstructor.dll
+D:\DiplomPrototype\NeuralNetworkConstructor\bin\Debug\NeuralNetworkConstructor.pdb
+D:\DiplomPrototype\NeuralNetworkConstructor\obj\Debug\NeuralNetworkConstructor.csproj.AssemblyReference.cache
+D:\DiplomPrototype\NeuralNetworkConstructor\obj\Debug\NeuralNetworkConstructor.csproj.CoreCompileInputs.cache
+D:\DiplomPrototype\NeuralNetworkConstructor\obj\Debug\NeuralNetworkConstructor.dll
+D:\DiplomPrototype\NeuralNetworkConstructor\obj\Debug\NeuralNetworkConstructor.pdb

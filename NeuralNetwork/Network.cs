@@ -99,6 +99,71 @@ namespace NeuralNetwork
                 predictIndex = Array.IndexOf(RESULTS, RESULTS.Max());
             }
         }
+        //Старый метод для обучения
+        //public void Train(Network network)
+        //{
+        //    ResetAccuracy();
+        //    DownloadSymbolsFile(_TRAIN_SET, trainSymbolsPath);
+
+        //    int i = 0;
+        //    int miniBatchSize = NetworkParameters.minibatchSize;
+        //    int miniBatchCount = NetworkParameters.minibatchCount;
+        //    int epochCount = NetworkParameters.epochCount;
+
+        //    //double[] mini_batch_errors = new double[RESULTS.Length];
+
+        //    int[] mark_right_answers = new int[RESULTS.Length];
+
+        //    double[] prev_layer_errors;
+        //    do
+        //    {
+        //        _lossToEpoch = 0;
+        //        //Прохождение мини-батчей
+        //        for (int c = 0; c < miniBatchCount; c++)
+        //        {
+        //            for (int e = 0; e < mini_batch_errors.Length; e++)
+        //            {
+        //                mini_batch_errors[e] = 0;
+        //            }
+        //            for (int m = 0; m < miniBatchSize; m++)
+        //            {
+        //                HandleRandomSymbolFromSet(_TRAIN_SET, RESULTS.Length);
+
+        //                for (int e = 0; e < RESULTS.Length; e++)
+        //                {
+        //                    mark_right_answers[e] = (e == trueIndex ? 1 : 0);
+        //                    //mini_batch_errors[e] += RESULTS[e] - mark_right_answers[e];
+        //                    mini_batch_errors[e] += -1 * (mark_right_answers[e] * Math.Log(RESULTS[e] + 1e-10) + (1 - mark_right_answers[e]) * Math.Log(1 - RESULTS[e] + 1e-10));
+        //                    if (double.IsNaN(mini_batch_errors[e]) || double.IsInfinity(mini_batch_errors[e]))
+        //                    {
+        //                        mini_batch_errors[e] = 1;
+        //                    }
+        //                }
+        //            }
+        //            for (int e = 0; e < mini_batch_errors.Length; e++)
+        //            {
+        //                mini_batch_errors[e] /= miniBatchSize;
+        //                _lossToEpoch += mini_batch_errors[e];
+        //            }
+        //            prev_layer_errors = outputLayer.MiniBatchBackwardPass(mini_batch_errors);
+        //            for (int h = _HIDDEN_LAYERS.Length - 1; h >= 0; h--)
+        //            {
+        //                prev_layer_errors = _HIDDEN_LAYERS[h].MiniBatchBackwardPass(prev_layer_errors);
+        //            }
+        //        }
+        //        _lossToEpoch /= mini_batch_errors.Length;
+        //        _lossToEpoch /= miniBatchCount;
+        //        DownloadAverageLoss(MemoryMode.SET);
+        //        i++;
+        //    } while (_lossToEpoch > NetworkParameters.lossThreshold && i < epochCount);
+        //    for (int h = 0; h < _HIDDEN_LAYERS.Length; h++)
+        //    {
+        //        _HIDDEN_LAYERS[h].WeightInitialize(MemoryMode.SET, $"HiddenLayer{h + 1}");
+        //    }
+        //    outputLayer.WeightInitialize(MemoryMode.SET, "OutputLayer");
+        //    DownloadAverageLoss(MemoryMode.GET);
+        //    ResetAccuracy();
+        //}
 
         public void Train(Network network)
         {
@@ -110,52 +175,53 @@ namespace NeuralNetwork
             int miniBatchCount = NetworkParameters.minibatchCount;
             int epochCount = NetworkParameters.epochCount;
 
-            double[] mini_batch_errors = new double[RESULTS.Length];
+            double miniBatchLoss = 0.0;
 
-            int[] mark_right_answers = new int[RESULTS.Length];
-
-            double[] prev_layer_errors;
-            do
+            for (int epoch = 0; epoch < miniBatchCount; epoch++)
             {
-                _lossToEpoch = 0;
+                _lossToEpoch = 0.0;
                 //Прохождение мини-батчей
-                for (int c = 0; c < miniBatchCount; c++)
+                for (int batch = 0; batch < miniBatchCount; batch++)
                 {
-                    for (int e = 0; e < mini_batch_errors.Length; e++)
-                    {
-                        mini_batch_errors[e] = 0;
-                    }
-                    for (int m = 0; m < miniBatchSize; m++)
-                    {
-                        HandleRandomSymbolFromSet(_TRAIN_SET, RESULTS.Length);
+                    miniBatchLoss = 0.0;
 
-                        for (int e = 0; e < RESULTS.Length; e++)
+                    for (int sample = 0; sample < miniBatchSize; sample++)
+                    {
+                        // Загружает случайный символ и выполняет прямой проход.
+                        // После него RESULTS содержит вероятности Softmax.
+                        HandleRandomSymbolFromSet(_TRAIN_SET,RESULTS.Length);
+
+                        // Берём вероятность правильного символа.
+                        double correctProbability = Math.Max(RESULTS[trueIndex],1e-12);
+
+                        //Ошибка для одного обучающего примера
+                        // Categorical Cross-Entropy:
+                        // чем выше вероятность правильного класса,
+                        // тем меньше ошибка.
+                        double sampleLoss = -Math.Log(correctProbability);
+
+                        if (double.IsNaN(sampleLoss) || double.IsInfinity(sampleLoss))
                         {
-                            mark_right_answers[e] = (e == trueIndex ? 1 : 0);
-                            //mini_batch_errors[e] += RESULTS[e] - mark_right_answers[e];
-                            mini_batch_errors[e] += -1 * (mark_right_answers[e] * Math.Log(RESULTS[e] + 1e-10) + (1 - mark_right_answers[e]) * Math.Log(1 - RESULTS[e] + 1e-10));
-                            if (double.IsNaN(mini_batch_errors[e]) || double.IsInfinity(mini_batch_errors[e]))
-                            {
-                                mini_batch_errors[e] = 1;
-                            }
+                            throw new ArithmeticException($"Некорректное значение loss: {sampleLoss}");
                         }
+
+                        miniBatchLoss += sampleLoss;
                     }
-                    for (int e = 0; e < mini_batch_errors.Length; e++)
-                    {
-                        mini_batch_errors[e] /= miniBatchSize;
-                        _lossToEpoch += mini_batch_errors[e];
-                    }
-                    prev_layer_errors = outputLayer.MiniBatchBackwardPass(mini_batch_errors);
-                    for (int h = _HIDDEN_LAYERS.Length - 1; h >= 0; h--)
-                    {
-                        prev_layer_errors = _HIDDEN_LAYERS[h].MiniBatchBackwardPass(prev_layer_errors);
-                    }
+
+                    // Средний loss по изображениям данного мини-батча.
+                    miniBatchLoss /= miniBatchSize;
+
+                    _lossToEpoch += miniBatchLoss;
+
+                    //prev_layer_errors = outputLayer.MiniBatchBackwardPass(mini_batch_errors);
+                    //for (int h = _HIDDEN_LAYERS.Length - 1; h >= 0; h--)
+                    //{
+                    //    prev_layer_errors = _HIDDEN_LAYERS[h].MiniBatchBackwardPass(prev_layer_errors);
+                    //}
                 }
-                _lossToEpoch /= mini_batch_errors.Length;
-                _lossToEpoch /= miniBatchCount;
+                
                 DownloadAverageLoss(MemoryMode.SET);
-                i++;
-            } while (_lossToEpoch > NetworkParameters.lossThreshold && i < epochCount);
+            }
             for (int h = 0; h < _HIDDEN_LAYERS.Length; h++)
             {
                 _HIDDEN_LAYERS[h].WeightInitialize(MemoryMode.SET, $"HiddenLayer{h + 1}");
@@ -164,6 +230,7 @@ namespace NeuralNetwork
             DownloadAverageLoss(MemoryMode.GET);
             ResetAccuracy();
         }
+
         //Прямой проход нейросети по примеру, из определённого набора
         private void HandleRandomSymbolFromSet(string[] symbolsArray, int maxAnswerIndex)
         {
