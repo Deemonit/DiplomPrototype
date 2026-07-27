@@ -220,7 +220,8 @@ namespace NeuralNetwork
                     //}
                 }
 
-                _lossToEpoch /= miniBatchCount;// Средняя ошибка за всю эпоху
+                // Средняя ошибка за всю эпоху:
+                _lossToEpoch /= miniBatchCount;
 
                 DownloadAverageLoss(MemoryMode.SET);
             }
