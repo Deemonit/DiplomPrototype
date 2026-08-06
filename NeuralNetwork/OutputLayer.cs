@@ -2,10 +2,9 @@
 
 namespace NeuralNetwork
 {
-    double[,] gradientSum;
     class OutputLayer : Layer
     {
-        double[,] gradientSum;
+        private readonly double[,] gradientSum;
         Random random;
         public OutputLayer(int curNeurons, int prevNeurons, string type, Network.LayerType layerType) : base(curNeurons, prevNeurons, type, layerType) 
         {
