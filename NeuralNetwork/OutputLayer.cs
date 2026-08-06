@@ -15,7 +15,7 @@ namespace NeuralNetwork
             }
 
             double[] probabilities = Softmax(net.RESULTS);
-            
+
             for (int i = 0; i < probabilities.Length; i++)
             {
                 net.RESULTS[i] = probabilities[i];
@@ -23,32 +23,61 @@ namespace NeuralNetwork
         }
 
         //для обучения - обратное прохождение
-        public override double[] MiniBatchBackwardPass(double[] errors)
+        //public override double[] MiniBatchBackwardPass(double[] errors)
+        //{
+        //    double[] error_sum = new double[prevNeurons];
+        //    double[] update_speed = new double[prevNeurons];
+        //    double gradient = 0;
+
+        //    for (int j = 0; j < prevNeurons; j++)
+        //    {
+        //        error_sum[j] = 0;
+        //        update_speed[j] = beta;
+        //    }
+
+        //    for (int i = 0; i < curNeurons; i++)
+        //    {
+        //        for (int j = 0; j < prevNeurons; j++)
+        //        {
+        //            gradient = GetGradient(errors[i], GetOutputDerivative(Neurons[i].Output));
+        //            gradient += lambda * Neurons[i].Weights[j];
+        //            if (double.IsNaN(gradient) || double.IsInfinity(gradient))
+        //            {
+        //                gradient = 1;
+        //            }
+
+        //            update_speed[j] = beta * update_speed[j] - learningRate * gradient; // вычисляем новую скорость
+        //            error_sum[j] += Neurons[i].Weights[j] * update_speed[j];
+        //            Neurons[i].Weights[j] -= update_speed[j] * Neurons[i].Inputs[j];
+        //        }
+        //    }
+        //    return error_sum;
+        //}
+
+        //для обучения - обратное прохождение
+        public override double[] MiniBatchBackwardPass(double[] outputDelta)
         {
-            double[] error_sum = new double[prevNeurons];
-            double[] update_speed = new double[prevNeurons];
-            double gradient = 0;
+            //double[] error_sum = new double[prevNeurons];
+            //double[] update_speed = new double[prevNeurons];
+
+            double[,] gradientSum = new double[curNeurons, prevNeurons];
 
             for (int j = 0; j < prevNeurons; j++)
             {
                 error_sum[j] = 0;
                 update_speed[j] = beta;
             }
-
-            for (int i = 0; i < curNeurons; i++)
+            for (int outputIndex = 0; outputIndex < curNeurons; outputIndex++)
             {
-                for (int j = 0; j < prevNeurons; j++)
+                for (int hiddenIndex = 0; hiddenIndex < prevNeurons; hiddenIndex++)
                 {
-                    gradient = GetGradient(errors[i], GetOutputDerivative(Neurons[i].Output));
-                    gradient += lambda * Neurons[i].Weights[j];
-                    if (double.IsNaN(gradient) || double.IsInfinity(gradient))
-                    {
-                        gradient = 1;
-                    }
+                    // Градиент конкретного веса:
+                    // дельта выходного нейрона
+                    // × значение соответствующего скрытого нейрона.
+                    double weightGradient = outputDelta[outputIndex] * Neurons[outputIndex].Inputs[hiddenIndex];
 
-                    update_speed[j] = beta * update_speed[j] - learningRate * gradient; // вычисляем новую скорость
-                    error_sum[j] += Neurons[i].Weights[j] * update_speed[j];
-                    Neurons[i].Weights[j] -= update_speed[j] * Neurons[i].Inputs[j];
+                    gradientSum[outputIndex, hiddenIndex] += weightGradient;
+
                 }
             }
             return error_sum;
