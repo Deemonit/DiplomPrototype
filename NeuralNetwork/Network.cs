@@ -184,6 +184,7 @@ namespace NeuralNetwork
                 for (int batch = 0; batch < miniBatchCount; batch++)
                 {
                     miniBatchLoss = 0.0;
+                    outputLayer.ClearGradientSum();
 
                     for (int sample = 0; sample < miniBatchSize; sample++)
                     {

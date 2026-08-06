@@ -2,10 +2,16 @@
 
 namespace NeuralNetwork
 {
+    double[,] gradientSum;
     class OutputLayer : Layer
     {
+        double[,] gradientSum;
         Random random;
-        public OutputLayer(int curNeurons, int prevNeurons, string type, Network.LayerType layerType) : base(curNeurons, prevNeurons, type, layerType) { random = new Random(); }
+        public OutputLayer(int curNeurons, int prevNeurons, string type, Network.LayerType layerType) : base(curNeurons, prevNeurons, type, layerType) 
+        {
+            random = new Random();
+            gradientSum = new double[curNeurons, prevNeurons];
+        }
         public override void StraightPass(Network net, Layer nextLayer)
         {
             for (int i = 0; i < Neurons.Length; i++)
@@ -20,6 +26,14 @@ namespace NeuralNetwork
             {
                 net.RESULTS[i] = probabilities[i];
             }
+        }
+
+        public void ClearGradientSum()
+        {
+            Array.Clear(
+                gradientSum,
+                0,
+                gradientSum.Length);
         }
 
         //для обучения - обратное прохождение
@@ -54,13 +68,11 @@ namespace NeuralNetwork
         //    return error_sum;
         //}
 
-        //для обучения - обратное прохождение
+        //для обучения - обратное прохождение для одного изображения
         public override double[] MiniBatchBackwardPass(double[] outputDelta)
         {
-            //double[] error_sum = new double[prevNeurons];
+            double[] previousLayerErrors = new double[prevNeurons];
             //double[] update_speed = new double[prevNeurons];
-
-            double[,] gradientSum = new double[curNeurons, prevNeurons];
 
             for (int j = 0; j < prevNeurons; j++)
             {
@@ -69,18 +81,24 @@ namespace NeuralNetwork
             }
             for (int outputIndex = 0; outputIndex < curNeurons; outputIndex++)
             {
+                double delta = outputDelta[outputIndex];
+                double hiddenOutput = Neurons[outputIndex].Inputs[hiddenIndex];
+                double currentWeight = Neurons[outputIndex].Weights[hiddenIndex];
+
                 for (int hiddenIndex = 0; hiddenIndex < prevNeurons; hiddenIndex++)
                 {
                     // Градиент конкретного веса:
-                    // дельта выходного нейрона
-                    // × значение соответствующего скрытого нейрона.
-                    double weightGradient = outputDelta[outputIndex] * Neurons[outputIndex].Inputs[hiddenIndex];
+                    // дельта выходного нейрона × значение соответствующего скрытого нейрона (связанного нейрона на предыдущем слое).
+                    double weightGradient = delta * hiddenOutput;
 
                     gradientSum[outputIndex, hiddenIndex] += weightGradient;
 
+                    // Считаем ошибку для скрытого нейрона
+                    // Она понадобится при обучении предыдущего слоя
+                    previousLayerErrors[hiddenIndex] += currentWeight * delta;
                 }
             }
-            return error_sum;
+            return previousLayerErrors;
         }
 
         //Функция для классификаторов с 1-им правильным ответом
