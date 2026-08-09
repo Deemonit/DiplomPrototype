@@ -306,7 +306,7 @@ namespace NeuralNetwork
             {
                 searchingIndex = random.Next(symbolsArray.Length);
                 symbol = symbolsArray[searchingIndex].Split(NetworkParameters.splitSign);
-            } while (int.Parse(symbol[0]) >= maxAnswerIndex && (isRareCharProirity && _rightAnswersCount[searchingIndex] >= minimumRare));
+            } while (int.Parse(symbol[0]) >= maxAnswerIndex && (isRareCharProirity && _rightAnswersCount[int.Parse(symbol[0])] >= minimumRare));
 
             drawSymbols.DownloadSymbolToMatrix(symbol);
             drawSymbols.MNISTNormalizeMatrix();
