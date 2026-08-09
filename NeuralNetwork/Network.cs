@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -232,7 +233,7 @@ namespace NeuralNetwork
                             // производная loss по логиту выходного нейрона.
                             outputDelta[outputIndex] = RESULTS[outputIndex] - target;
                         }
-                        
+
                         double deltaSum = 0.0;
 
                         deltaSum = outputDelta.Sum();
@@ -280,19 +281,35 @@ namespace NeuralNetwork
         }
 
         //Прямой проход нейросети по примеру, из определённого набора
-        private void HandleRandomSymbolFromSet(string[] symbolsArray, int maxAnswerIndex,bool isRareCharProirity = false)
+        private void HandleRandomSymbolFromSet(string[] symbolsArray, int maxAnswerIndex, bool isRareCharProirity = false)
         {
-            double minimumRare = 1.0d;
+            double avgAccuracy = 0;
             int rarestChar = 0;
+            List<int> rareChars = new List<int>();
 
-            if(isRareCharProirity)
+            if (isRareCharProirity)
             {
-                for (int i = 0; i < symbolsArray.Length; i++)
+                int classesWithData = 0;
+
+                //Берём среднюю точность, как порог. Нужны символы, у которых процент отгадывания нейросетью ниже среднестатистического
+                for (int i = 0; i < _ACCURACY.Length; i++)
                 {
-                    if (_rightAnswersCount[i] < minimumRare)
+                    if (_answersCount[i] > 0)
                     {
-                        minimumRare = _rightAnswersCount[i];
-                        rarestChar = i;
+                        avgAccuracy += _ACCURACY[i];
+                        classesWithData++;
+                    }
+                }
+
+                if (classesWithData > 0) avgAccuracy /= classesWithData;
+
+
+                //поиск редких символов: точность по ним ниже среднестатистической
+                for (int i = 0; i < _ACCURACY.Length; i++)
+                {
+                    if (_ACCURACY[i] <= avgAccuracy || _answersCount[i] == 0)
+                    {
+                        rareChars.Add(i);
                     }
                 }
             }
@@ -308,14 +325,14 @@ namespace NeuralNetwork
                 randomRowIndex = random.Next(symbolsArray.Length);
                 symbol = symbolsArray[randomRowIndex].Split(NetworkParameters.splitSign);
                 randomCharIndex = int.Parse(symbol[0]);
-            } while (int.Parse(symbol[0]) >= maxAnswerIndex && (isRareCharProirity && _rightAnswersCount[randomCharIndex] >= minimumRare));
+            } while (int.Parse(symbol[0]) >= maxAnswerIndex || (isRareCharProirity && rareChars.Contains(randomCharIndex)));
 
             drawSymbols.DownloadSymbolToMatrix(symbol);
             drawSymbols.MNISTNormalizeMatrix();
             StraightForward(drawSymbols.DATA_MATRIX);
 
 
-            trueIndex = randomCharIndex
+            trueIndex = randomCharIndex;
 
             UpdateAccuracy();
         }
