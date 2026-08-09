@@ -325,7 +325,7 @@ namespace NeuralNetwork
                 randomRowIndex = random.Next(symbolsArray.Length);
                 symbol = symbolsArray[randomRowIndex].Split(NetworkParameters.splitSign);
                 randomCharIndex = int.Parse(symbol[0]);
-            } while (int.Parse(symbol[0]) >= maxAnswerIndex || (isRareCharProirity && rareChars.Contains(randomCharIndex)));
+            } while (int.Parse(symbol[0]) >= maxAnswerIndex || (isRareCharProirity && !rareChars.Contains(randomCharIndex)));
 
             drawSymbols.DownloadSymbolToMatrix(symbol);
             drawSymbols.MNISTNormalizeMatrix();
