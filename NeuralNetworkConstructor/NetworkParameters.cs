@@ -30,14 +30,13 @@ namespace NeuralNetworkConstructor
 
         public static int[] NEURONS_COUNT = new int[]
         {
-            64,128,256
-            //1,1,1
+            128
         };
 
         //Настройка гиперпараметров нейросети
-        public static double learningRate = 0.5d;//скорость обучения
-        public static double regilarization = 0.3;//регуляризация (L2)
-        public static double gradientMoment = 0.95;//инерция весов
+        public static double learningRate = 0.001d;//скорость обучения
+        public static double regilarization = 0.0001d;//0.3;//регуляризация (L2)
+        public static double gradientMoment = 0.9d;//0.95;//инерция весов
 
         public static double lossThreshold = 0.001;
 

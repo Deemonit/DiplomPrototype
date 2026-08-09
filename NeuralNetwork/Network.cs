@@ -192,7 +192,7 @@ namespace NeuralNetwork
                         HandleRandomSymbolFromSet(_TRAIN_SET, RESULTS.Length);
 
                         //Хранит ошибки с предыдущего слоя
-                        double[] prev_layer_errors;
+                        double[] prevLayerErrors;
 
                         // Берём вероятность правильного символа.
                         double correctProbability = Math.Max(RESULTS[trueIndex], 1e-12);
@@ -236,7 +236,7 @@ namespace NeuralNetwork
                             throw new ArithmeticException($"Сумма outputDelta должна быть около нуля: {deltaSum}");
                         }
 
-                        prev_layer_errors = outputLayer.MiniBatchBackwardPass(outputDelta);
+                        prevLayerErrors = outputLayer.MiniBatchBackwardPass(outputDelta);
                     }
 
 
