@@ -184,6 +184,10 @@ namespace NeuralNetwork
                 {
                     miniBatchLoss = 0.0;
                     outputLayer.ClearGradientSum();
+                    for (int h = _HIDDEN_LAYERS.Length - 1; h >= 0; h--)
+                    {
+                        _HIDDEN_LAYERS[h].ClearGradientSum();
+                    }
 
                     for (int sample = 0; sample < miniBatchSize; sample++)
                     {

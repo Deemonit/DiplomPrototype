@@ -28,7 +28,7 @@ namespace NeuralNetwork
 
             for (int outputIndex = 0; outputIndex < curNeurons; outputIndex++)
             {
-                double delta = outputDelta[outputIndex];
+                double delta = outputDelta[outputIndex] * GetHiddenDerivative(Neurons[outputIndex].Output);
 
                 for (int hiddenIndex = 0; hiddenIndex < prevNeurons; hiddenIndex++)
                 {
