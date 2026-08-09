@@ -298,27 +298,24 @@ namespace NeuralNetwork
             }
 
 
-            int randomRow;
+            int randomRowIndex;
             int searchingIndex;
+            int randomCharIndex;
             string[] symbol = null;
             //string buf;
             do
             {
-                searchingIndex = random.Next(symbolsArray.Length);
-                symbol = symbolsArray[searchingIndex].Split(NetworkParameters.splitSign);
-            } while (int.Parse(symbol[0]) >= maxAnswerIndex && (isRareCharProirity && _rightAnswersCount[int.Parse(symbol[0])] >= minimumRare));
+                randomRowIndex = random.Next(symbolsArray.Length);
+                symbol = symbolsArray[randomRowIndex].Split(NetworkParameters.splitSign);
+                randomCharIndex = int.Parse(symbol[0]);
+            } while (int.Parse(symbol[0]) >= maxAnswerIndex && (isRareCharProirity && _rightAnswersCount[randomCharIndex] >= minimumRare));
 
             drawSymbols.DownloadSymbolToMatrix(symbol);
             drawSymbols.MNISTNormalizeMatrix();
             StraightForward(drawSymbols.DATA_MATRIX);
 
-            randomRow = random.Next(symbolsArray.Length);
 
-            //buf = symbolsArray[searchingIndex];
-            //symbolsArray[searchingIndex] = symbolsArray[randomRow];
-            //symbolsArray[randomRow] = buf;
-
-            trueIndex = int.Parse(symbol[0]);
+            trueIndex = randomCharIndex
 
             UpdateAccuracy();
         }
