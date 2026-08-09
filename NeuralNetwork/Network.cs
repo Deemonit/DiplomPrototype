@@ -245,6 +245,9 @@ namespace NeuralNetwork
 
                     _lossToEpoch += miniBatchLoss;
 
+                    // Все изображения mini-batch обработаны. Усредняем накопленные градиенты и обновляем веса выходного слоя.
+                    outputLayer.ApplyGradients(miniBatchSize);//
+
                     //prev_layer_errors = outputLayer.MiniBatchBackwardPass(mini_batch_errors);
                     //for (int h = _HIDDEN_LAYERS.Length - 1; h >= 0; h--)
                     //{
