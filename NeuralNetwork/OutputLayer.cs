@@ -4,12 +4,11 @@ namespace NeuralNetwork
 {
     class OutputLayer : Layer
     {
-        private readonly double[,] gradientSum;
+        //private readonly double[,] gradientSum;
         Random random;
         public OutputLayer(int curNeurons, int prevNeurons, string type, Network.LayerType layerType) : base(curNeurons, prevNeurons, type, layerType)
         {
             random = new Random();
-            gradientSum = new double[curNeurons, prevNeurons];
         }
         public override void StraightPass(Network net, Layer nextLayer)
         {
@@ -25,14 +24,6 @@ namespace NeuralNetwork
             {
                 net.RESULTS[i] = probabilities[i];
             }
-        }
-
-        public void ClearGradientSum()
-        {
-            Array.Clear(
-                gradientSum,
-                0,
-                gradientSum.Length);
         }
 
         //для обучения - обратное прохождение

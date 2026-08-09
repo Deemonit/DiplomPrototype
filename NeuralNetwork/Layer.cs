@@ -13,6 +13,8 @@ namespace NeuralNetwork
 
         public double[,] Weights { get => _weights; set { _weights = value; } }
 
+        protected readonly double[,] gradientSum;
+
         protected double learningRate = NetworkParameters.learningRate;//скорость обучения
         protected double lambda = NetworkParameters.regilarization;//регуляризация (L2)
         protected double beta = NetworkParameters.gradientMoment;//скорость обновления весов
@@ -22,6 +24,8 @@ namespace NeuralNetwork
         protected Layer(int curNeurons, int prevNeurons, string layerName,Network.LayerType layerType)
         {
             random = new Random();
+            gradientSum = new double[curNeurons, prevNeurons];
+
             this.curNeurons = curNeurons;
             this.prevNeurons = prevNeurons;
 
@@ -134,6 +138,14 @@ namespace NeuralNetwork
             double u2 = 1.0 - random.NextDouble();
 
             return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
+        }
+
+        public void ClearGradientSum()
+        {
+            Array.Clear(
+                gradientSum,
+                0,
+                gradientSum.Length);
         }
     }
 }
