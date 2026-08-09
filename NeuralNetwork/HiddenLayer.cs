@@ -4,19 +4,11 @@ namespace NeuralNetwork
 {
     class HiddenLayer : Layer
     {
-        // Сумма градиентов весов скрытого слоя по всем изображениям текущего mini-batch.
-        //
-        // Первый индекс — скрытый нейрон.
-        // Второй индекс — нейрон или значение предыдущего слоя.
-        private readonly double[,] gradientSum;
 
         Random random;
         public HiddenLayer(int curNeurons, int prevNeurons, string type, Network.LayerType layerType) : base(curNeurons, prevNeurons, type, layerType) 
         { 
             random = new Random();
-
-            // Для каждого веса скрытого слоя создаём отдельный накопитель градиента.
-            gradientSum = new double[curNeurons, prevNeurons];
         }
         public override void StraightPass(Network net, Layer nextLayer)
         {

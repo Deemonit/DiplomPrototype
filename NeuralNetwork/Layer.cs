@@ -13,6 +13,10 @@ namespace NeuralNetwork
 
         public double[,] Weights { get => _weights; set { _weights = value; } }
 
+        // Сумма градиентов весов скрытого слоя по всем изображениям текущего mini-batch.
+        //
+        // Первый индекс — скрытый нейрон.
+        // Второй индекс — нейрон или значение предыдущего слоя.
         protected readonly double[,] gradientSum;
 
         protected double learningRate = NetworkParameters.learningRate;//скорость обучения
