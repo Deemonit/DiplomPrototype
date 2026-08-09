@@ -73,19 +73,14 @@ namespace NeuralNetwork
             double[] previousLayerErrors = new double[prevNeurons];
             //double[] update_speed = new double[prevNeurons];
 
-            for (int j = 0; j < prevNeurons; j++)
-            {
-                error_sum[j] = 0;
-                update_speed[j] = beta;
-            }
             for (int outputIndex = 0; outputIndex < curNeurons; outputIndex++)
             {
                 double delta = outputDelta[outputIndex];
-                double hiddenOutput = Neurons[outputIndex].Inputs[hiddenIndex];
-                double currentWeight = Neurons[outputIndex].Weights[hiddenIndex];
 
                 for (int hiddenIndex = 0; hiddenIndex < prevNeurons; hiddenIndex++)
                 {
+                    double hiddenOutput = Neurons[outputIndex].Inputs[hiddenIndex];
+                    double currentWeight = Neurons[outputIndex].Weights[hiddenIndex];
                     // Градиент конкретного веса:
                     // дельта выходного нейрона × значение соответствующего скрытого нейрона (связанного нейрона на предыдущем слое).
                     double weightGradient = delta * hiddenOutput;
