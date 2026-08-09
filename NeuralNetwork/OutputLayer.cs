@@ -6,7 +6,7 @@ namespace NeuralNetwork
     {
         private readonly double[,] gradientSum;
         Random random;
-        public OutputLayer(int curNeurons, int prevNeurons, string type, Network.LayerType layerType) : base(curNeurons, prevNeurons, type, layerType) 
+        public OutputLayer(int curNeurons, int prevNeurons, string type, Network.LayerType layerType) : base(curNeurons, prevNeurons, type, layerType)
         {
             random = new Random();
             gradientSum = new double[curNeurons, prevNeurons];
@@ -131,6 +131,41 @@ namespace NeuralNetwork
             }
 
             return probabilities;
+        }
+
+        public void ApplyGradients(int miniBatchSize)
+        {
+            if (miniBatchSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(miniBatchSize),
+                    "Размер mini-batch должен быть больше нуля.");
+            }
+
+            for (int outputIndex = 0; outputIndex < curNeurons; outputIndex++)
+            {
+                for (int hiddenIndex = 0; hiddenIndex < prevNeurons; hiddenIndex++)
+                {
+                    // Средний градиент конкретного веса по всем изображениям mini-batch.
+                    double averageGradient = gradientSum[outputIndex, hiddenIndex] / miniBatchSize;
+
+                    if (double.IsNaN(averageGradient) || double.IsInfinity(averageGradient))
+                    {
+                        throw new ArithmeticException($"Некорректный градиент веса " + $"[{outputIndex}, {hiddenIndex}]: " + $"{averageGradient}");
+                    }
+
+                    // Обычный градиентный спуск:
+                    // двигаем вес в сторону уменьшения loss.
+                    double updatedWeight = Neurons[outputIndex].Weights[hiddenIndex] - learningRate * averageGradient;
+
+                    Neurons[outputIndex].Weights[hiddenIndex] = updatedWeight;
+
+                    if (double.IsNaN(updatedWeight) || double.IsInfinity(updatedWeight))
+                    {
+                        throw new ArithmeticException($"Некорректный вес выходного слоя " + $"[{outputIndex}, {hiddenIndex}]: " + $"{updatedWeight}");
+                    }
+                }
+            }
         }
     }
 }
