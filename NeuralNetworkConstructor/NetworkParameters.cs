@@ -30,19 +30,19 @@ namespace NeuralNetworkConstructor
 
         public static int[] NEURONS_COUNT = new int[]
         {
-            128
+            64,16
         };
 
         //Настройка гиперпараметров нейросети
-        public static double learningRate = 0.001d;//скорость обучения
+        public static double learningRate = 0.01d;//скорость обучения
         public static double regilarization = 0.0d;
         public static double gradientMoment = 0.0d;
 
         public static double lossThreshold = 0.001;
 
-        public static int epochCount = 20;
-        public static int batchSize = 2048;
-        public static int minibatchSize = 32;
+        public static int epochCount = 100;
+        public static int batchSize = 1000;
+        public static int minibatchSize = 20;
         public static int minibatchCount = (int)batchSize / minibatchSize;
 
         public static double alpha = 0.01;
