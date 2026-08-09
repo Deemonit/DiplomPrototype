@@ -170,7 +170,6 @@ namespace NeuralNetwork
             ResetAccuracy();
             DownloadSymbolsFile(_TRAIN_SET, trainSymbolsPath);
 
-            int i = 0;
             int miniBatchSize = NetworkParameters.minibatchSize;
             int miniBatchCount = NetworkParameters.minibatchCount;
             int epochCount = NetworkParameters.epochCount;
@@ -191,6 +190,9 @@ namespace NeuralNetwork
                         // Загружает случайный символ и выполняет прямой проход.
                         // После него RESULTS содержит вероятности Softmax.
                         HandleRandomSymbolFromSet(_TRAIN_SET, RESULTS.Length);
+
+                        //Хранит ошибки с предыдущего слоя
+                        double[] prev_layer_errors;
 
                         // Берём вероятность правильного символа.
                         double correctProbability = Math.Max(RESULTS[trueIndex], 1e-12);
