@@ -35,13 +35,13 @@ namespace NeuralNetworkConstructor
 
         //Настройка гиперпараметров нейросети
         public static double learningRate = 0.001d;//скорость обучения
-        public static double regilarization = 0.0001d;//0.3;//регуляризация (L2)
-        public static double gradientMoment = 0.9d;//0.95;//инерция весов
+        public static double regilarization = 0.0d;
+        public static double gradientMoment = 0.0d;
 
         public static double lossThreshold = 0.001;
 
-        public static int epochCount = 2;
-        public static int batchSize = 128;
+        public static int epochCount = 20;
+        public static int batchSize = 2048;
         public static int minibatchSize = 32;
         public static int minibatchCount = (int)batchSize / minibatchSize;
 
