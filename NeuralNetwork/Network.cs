@@ -237,6 +237,11 @@ namespace NeuralNetwork
                         }
 
                         prevLayerErrors = outputLayer.MiniBatchBackwardPass(outputDelta);
+
+                        for (int h = _HIDDEN_LAYERS.Length - 1; h >= 0; h--)
+                        {
+                            prevLayerErrors = _HIDDEN_LAYERS[h].MiniBatchBackwardPass(prevLayerErrors);
+                        }
                     }
 
 
@@ -247,12 +252,11 @@ namespace NeuralNetwork
 
                     // Все изображения mini-batch обработаны. Усредняем накопленные градиенты и обновляем веса выходного слоя.
                     outputLayer.ApplyGradients(miniBatchSize);//
+                    for (int h = _HIDDEN_LAYERS.Length - 1; h >= 0; h--)
+                    {
+                        _HIDDEN_LAYERS[h].ApplyGradients(miniBatchSize);
+                    }
 
-                    //prev_layer_errors = outputLayer.MiniBatchBackwardPass(mini_batch_errors);
-                    //for (int h = _HIDDEN_LAYERS.Length - 1; h >= 0; h--)
-                    //{
-                    //    prev_layer_errors = _HIDDEN_LAYERS[h].MiniBatchBackwardPass(prev_layer_errors);
-                    //}
                 }
 
                 // Средняя ошибка за всю эпоху:
