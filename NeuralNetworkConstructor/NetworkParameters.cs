@@ -41,9 +41,9 @@ namespace NeuralNetworkConstructor
         public static double lossThreshold = 0.001;
 
         public static int epochCount = 100;
-        public static int batchSize = 1000;
+        //public static int batchSize = 1000;
+        public static int minibatchCount = 100;
         public static int minibatchSize = 20;
-        public static int minibatchCount = (int)batchSize / minibatchSize;
 
         public static double alpha = 0.01;
 

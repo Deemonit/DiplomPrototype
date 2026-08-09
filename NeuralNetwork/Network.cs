@@ -170,6 +170,8 @@ namespace NeuralNetwork
             ResetAccuracy();
             DownloadSymbolsFile(_TRAIN_SET, trainSymbolsPath);
 
+            bool isRareCharSort = true;
+
             int miniBatchSize = NetworkParameters.minibatchSize;
             int miniBatchCount = NetworkParameters.minibatchCount;
             int epochCount = NetworkParameters.epochCount;
@@ -193,7 +195,7 @@ namespace NeuralNetwork
                     {
                         // Загружает случайный символ и выполняет прямой проход.
                         // После него RESULTS содержит вероятности Softmax.
-                        HandleRandomSymbolFromSet(_TRAIN_SET, RESULTS.Length);
+                        HandleRandomSymbolFromSet(_TRAIN_SET, RESULTS.Length, isRareCharSort);
 
                         //Хранит ошибки с предыдущего слоя
                         double[] prevLayerErrors;
@@ -278,17 +280,33 @@ namespace NeuralNetwork
         }
 
         //Прямой проход нейросети по примеру, из определённого набора
-        private void HandleRandomSymbolFromSet(string[] symbolsArray, int maxAnswerIndex)
+        private void HandleRandomSymbolFromSet(string[] symbolsArray, int maxAnswerIndex,bool isRareCharProirity = false)
         {
+            double minimumRare = 1.0d;
+            int rarestChar = 0;
+
+            if(isRareCharProirity)
+            {
+                for (int i = 0; i < symbolsArray.Length; i++)
+                {
+                    if (_rightAnswersCount[i] < minimumRare)
+                    {
+                        minimumRare = _rightAnswersCount[i];
+                        rarestChar = i;
+                    }
+                }
+            }
+
+
             int randomRow;
             int searchingIndex;
             string[] symbol = null;
-            string buf;
+            //string buf;
             do
             {
                 searchingIndex = random.Next(symbolsArray.Length);
                 symbol = symbolsArray[searchingIndex].Split(NetworkParameters.splitSign);
-            } while (int.Parse(symbol[0]) >= maxAnswerIndex);
+            } while (int.Parse(symbol[0]) >= maxAnswerIndex && (isRareCharProirity && _rightAnswersCount[searchingIndex] >= minimumRare));
 
             drawSymbols.DownloadSymbolToMatrix(symbol);
             drawSymbols.MNISTNormalizeMatrix();
@@ -296,9 +314,9 @@ namespace NeuralNetwork
 
             randomRow = random.Next(symbolsArray.Length);
 
-            buf = symbolsArray[searchingIndex];
-            symbolsArray[searchingIndex] = symbolsArray[randomRow];
-            symbolsArray[randomRow] = buf;
+            //buf = symbolsArray[searchingIndex];
+            //symbolsArray[searchingIndex] = symbolsArray[randomRow];
+            //symbolsArray[randomRow] = buf;
 
             trueIndex = int.Parse(symbol[0]);
 
