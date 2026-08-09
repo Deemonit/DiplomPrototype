@@ -121,13 +121,13 @@ namespace NeuralNetwork
 
         public double GetHiddenDerivative(double output)
         {
-            return (output > 0 ? 1 : NetworkParameters.alpha);
+            return (output >= 0 ? 1 : NetworkParameters.alpha);
         }
-        public double GetOutputDerivative(double output)
+
+        public double GetGradient(double error, double derivative)
         {
-            return output * (1 - output);
+            return error * derivative;
         }
-       
         private double GeneratedWeightValue()
         {
             double u1 = 1.0 - random.NextDouble();
